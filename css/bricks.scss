@@ -117,3 +117,8 @@ html, body {
   }
 }
 
+@media screen and (max-width: 1440px) {
+  .footer {
+    bottom: 6px !important; 
+  }
+}
