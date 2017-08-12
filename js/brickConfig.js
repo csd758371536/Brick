@@ -329,11 +329,6 @@ var bricks = [
 	brickPositionY: 280,
 	brickColor: "#006363"
 },
-{
-	brickPositionX: 40,
-	brickPositionY: 300,
-	brickColor: "#ff7400"
-},
 
 //右
 {

@@ -1,74 +1,12 @@
-var gameStart = true;
-
-/* 页面加载完成后执行此方法 */
-/* 本程序的入口函数 */
-window.onload = function () {
-	var canvas = document.getElementById("canvas");
-	var context = canvas.getContext("2d");
-
-	// 初始化游戏
-	initGame(context);
-	// 初始化游戏分数
-	document.getElementById("score").innerHTML = gameScore;
-	// 初始化游戏生命
-	document.getElementById("life").innerHTML = gameLife;
-
-	canvas.onclick = function() {
-		if (gameStart) {
-			gameStart = false;
-
-			// gameTimer = setInterval(function(){
-		 //        gameLoop(context);
-		 //    }, 10);
-
-		 	gameLoop();
-		}
-	};
-
-	// 监听键盘事件
-	document.onkeydown = function(event){
-		var e = event || window.event;
-
-		// 按下向左键
-		if (e.keyCode === 37) {
-			if (gameStart) {
-				moveStopBall(-boardSpeed, context);
-			}
-			moveBoard(-boardSpeed,context);
-		}
-
-		// 按下向右键
-		if (e.keyCode === 39) {
-			if (gameStart) {
-				moveStopBall(boardSpeed, context);
-			}
-			moveBoard(boardSpeed,context);
-		}
-	};
-
-	document.addEventListener("mousemove", mouseMoveHandler, false);
-
-	function mouseMoveHandler(e) {
-		var relativeX = e.clientX - canvas.getBoundingClientRect().left;
-	    if(relativeX > boardWidth / 2 && relativeX < canvas.width - boardWidth / 2) {
-			if (gameStart) {
-				context.clearRect(0, 0, canvasWidth, canvasHeight);
-				initBricks(context);
-				ballPositionX = relativeX;
-				drawBall(ballPositionX, ballPositionY, context);
-			}
-
-			boardPositionX = relativeX - boardWidth / 2;
-			drawBoard(boardPositionX, boardPositionY, context);
-	    }
-	}
-};
-
-var gameTimer; //游戏定时器，主循环
-var gameScore = 0; //游戏得分
-var gameLife = 3; //游戏生命条数
+/* 程序基本配置 */
+var canvas; // 画布元素
+var context; // context对象
 var canvasWidth = 640; // 定义画布宽度
 var canvasHeight = 480; // 定义画布高度
+var gameStart = true; // 游戏是否开始
+var gameTimer; // 游戏定时器，主循环
+var gameScore = 0; // 游戏得分
+var gameLife = 3; // 游戏生命条数
 /* 小球属性 */
 var ballRadius = 10; // 小球半径
 var ballSpeed = 4; // 小球速度
@@ -80,7 +18,7 @@ var ballPositionY = 420; // 小球位置Y坐标
 /* 球板属性 */
 var boardWidth = 80; // 球板宽度
 var boardHeigth = 10; // 球板高度
-var boardSpeed = 40;
+var boardSpeed = 40; // 球板速度
 var boardPositionX = canvasWidth/2 - boardWidth/2; // 球板位置X坐标
 var boardPositionY = canvasHeight - 40 - boardHeigth; // 球板位置Y坐标
 var boardColor = "#000"; // 球板颜色
@@ -88,14 +26,79 @@ var boardColor = "#000"; // 球板颜色
 var brickWidth = 40; // 砖块宽度
 var brickHeight = 20; // 砖块高度
 
+/* 页面加载完成后执行此方法 */
+/* 本程序的入口函数 */
+window.onload = function () {
+	//获得canvas元素
+	canvas = document.getElementById("canvas");
+	//获得context对象
+	context = canvas.getContext("2d");
+
+	// 初始化游戏
+	initGame();
+	// 初始化游戏分数
+	document.getElementById("score").innerHTML = gameScore;
+	// 初始化游戏生命
+	document.getElementById("life").innerHTML = gameLife;
+
+	// 绑定canvas点击事件
+	canvas.onclick = function() {
+		if (gameStart) {
+			gameStart = false;
+
+		 // gameTimer = setInterval(function(){
+		 //        gameLoop(context);
+		 //    }, 10);
+
+		 	// 游戏主循环
+		 	gameLoop();
+		}
+	};
+
+	// 监听键盘事件
+	document.addEventListener("keydown", function(event) {
+		var e = event || window.event;
+
+		// 按下向左键
+		if (e.keyCode === 37) {
+			if (gameStart) {
+				moveStopBall(-boardSpeed);
+			}
+			moveBoard(-boardSpeed);
+		}
+
+		// 按下向右键
+		if (e.keyCode === 39) {
+			if (gameStart) {
+				moveStopBall(boardSpeed);
+			}
+			moveBoard(boardSpeed);
+		}
+	}, false);
+
+	// 监听鼠标移动事件
+	document.addEventListener("mousemove", function (e) {
+		var relativeX = e.clientX - canvas.getBoundingClientRect().left;
+	    if(relativeX > boardWidth / 2 && relativeX < canvas.width - boardWidth / 2) {
+			if (gameStart) {
+				context.clearRect(0, 0, canvasWidth, canvasHeight);
+				initBricks();
+				ballPositionX = relativeX;
+				drawBall(ballPositionX, ballPositionY);
+			}
+
+			boardPositionX = relativeX - boardWidth / 2;
+			drawBoard(boardPositionX, boardPositionY);
+	    }
+	}, false);
+};
+
+/* 游戏主循环 */
 function gameLoop() {
     gameTimer = requestAnimationFrame(gameLoop);
 
-	var canvas = document.getElementById("canvas");
-	var context = canvas.getContext("2d");
-
-	moveBall(context);
-    checkBallPosition(context);
+	moveBall();
+    checkBallPosition();
     for (var i = 0; i < bricks.length; i++) {
     	if (checkBallCollide(bricks[i].brickPositionX, bricks[i].brickPositionY, brickWidth, brickHeight)) {
     		bricks.splice(i, 1);
@@ -113,38 +116,42 @@ function gameLoop() {
     checkBallCollide(boardPositionX, boardPositionY, boardWidth, boardHeigth);
 }
 
-function moveStopBall(speed, context) {
+/* 移动静止的球 */
+function moveStopBall(speed) {
 	if (boardPositionX + speed < 0 || boardPositionX + speed > canvasWidth - boardWidth) {
 		return;
 	}
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
-	initBricks(context);
+	initBricks();
 
 	ballPositionX = ballPositionX + speed;
-	drawBall(ballPositionX, ballPositionY, context);
+	drawBall(ballPositionX, ballPositionY);
 }
 
-function moveBoard(speed, context) {
+/* 移动球板 */
+function moveBoard(speed) {
 	if (boardPositionX + speed < 0 || boardPositionX + speed > canvasWidth - boardWidth) {
 		return;
 	}
 	boardPositionX = boardPositionX + speed;
-	drawBoard(boardPositionX, boardPositionY, context);
+	drawBoard(boardPositionX, boardPositionY);
 }
 
-function moveBall(context) {
+/* 移动运动的球 */
+function moveBall() {
 	// 清除画布内容
 	context.clearRect(0, 0, canvasWidth, canvasHeight);
 	for (var i = 0; i < bricks.length; i++) {
-		drawBrick(bricks[i].brickPositionX, bricks[i].brickPositionY, bricks[i].brickColor, context);
+		drawBrick(bricks[i].brickPositionX, bricks[i].brickPositionY, bricks[i].brickColor);
 	}
-	drawBoard(boardPositionX, boardPositionY, context);
-	drawBall(ballPositionX, ballPositionY, context);
+	drawBoard(boardPositionX, boardPositionY);
+	drawBall(ballPositionX, ballPositionY);
 	ballPositionX = ballPositionX + ballSpeedX;
 	ballPositionY = ballPositionY - ballSpeedY;
 }
 
-function checkBallPosition(context) {
+/* 检测球位置 */
+function checkBallPosition() {
 	if (ballPositionX > canvasWidth - ballRadius || ballPositionX < ballRadius) {
 		ballSpeedX = -ballSpeedX;
 	}
@@ -165,11 +172,11 @@ function checkBallPosition(context) {
 		boardPositionX = canvasWidth/2 - boardWidth/2; // 球板位置X坐标
 		boardPositionY = canvasHeight - 40 - boardHeigth; // 球板位置Y坐标
 
-		initBricks(context);
+		initBricks();
 		//初始化球板位置
-		initBoard(context);
+		initBoard();
 		//初始化小球位置
-		initBall(context);
+		initBall();
 
 		if (gameLife == 0) {
 			// cancelAnimationFrame(gameTimer);
@@ -179,6 +186,7 @@ function checkBallPosition(context) {
 	}
 }
 
+/* 检测球是否碰撞 */
 function checkBallCollide(x, y, width, height) {
 	var ballX = ballPositionX - (x + width / 2);
 	var ballY = (y + height / 2) - ballPositionY;
@@ -253,44 +261,48 @@ function checkBallCollide(x, y, width, height) {
 	return false;
 }
 
-function initGame(context) {
-	//初始化砖块位置
-	initBricks(context);
-	//初始化球板位置
-	initBoard(context);
-	//初始化小球位置
-	initBall(context);
+/* 初始化游戏 */
+function initGame() {
+	initBricks();
+	initBoard();
+	initBall();
 }
 
-function initBricks(context) {
+/* 初始化砖块位置 */
+function initBricks() {
 	for (var i = 0; i < bricks.length; i++) {
-		drawBrick(bricks[i].brickPositionX, bricks[i].brickPositionY, bricks[i].brickColor, context);
+		drawBrick(bricks[i].brickPositionX, bricks[i].brickPositionY, bricks[i].brickColor);
 	}
 }
 
-function initBoard(context) {
-	drawBoard(boardPositionX, boardPositionY, context);
+/* 初始化球板位置 */
+function initBoard() {
+	drawBoard(boardPositionX, boardPositionY);
 }
 
-function initBall(context) {
-	drawBall(ballPositionX, ballPositionY, context);
+/* 初始化小球位置 */
+function initBall() {
+	drawBall(ballPositionX, ballPositionY);
 }
 
-function drawBrick(x, y, brickColor, context) {
+/* 绘制砖块 */
+function drawBrick(x, y, brickColor) {
 	context.beginPath();
     context.fillStyle = brickColor;
     context.fillRect(x, y, brickWidth, brickHeight);
     context.closePath();
 }
 
-function drawBoard(x, y, context) {
+/* 绘制球板 */
+function drawBoard(x, y) {
 	context.beginPath();
     context.fillStyle = boardColor;
     context.fillRect(x, y, boardWidth, boardHeigth);
     context.closePath();
 }
 
-function drawBall(x, y, context) {
+/* 绘制小球 */
+function drawBall(x, y) {
     context.beginPath();
     context.arc(x, y, ballRadius, 0, Math.PI * 2, true);
     context.fillStyle = ballColor;
