@@ -29,10 +29,13 @@ var brickHeight = 20; // 砖块高度
 /* 页面加载完成后执行此方法 */
 /* 本程序的入口函数 */
 window.onload = function () {
-	//获得canvas元素
+	// 获得canvas元素
 	canvas = document.getElementById("canvas");
-	//获得context对象
+	// 获得context对象
 	context = canvas.getContext("2d");
+	// 设置canvas尺寸
+	canvas.setAttribute("width", canvasWidth);
+	canvas.setAttribute("height", canvasHeight);
 
 	// 初始化游戏
 	initGame();
@@ -187,6 +190,7 @@ function checkBallPosition() {
 }
 
 /* 检测球是否碰撞 */
+/* 算法暂时存在bug，计算最小分离量有误，待优化 */
 function checkBallCollide(x, y, width, height) {
 	var ballX = ballPositionX - (x + width / 2);
 	var ballY = (y + height / 2) - ballPositionY;

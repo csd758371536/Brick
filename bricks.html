@@ -12,9 +12,6 @@
 
 	<link rel="stylesheet" media="screen" href="./css/bricks.css">
 	<link rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css">
-
-	<script src="./js/brickConfig.js"></script>
-	<script src="./js/bricks.js"></script>
 </head>
 <body>
 	<div class="title">打砖块，鼠标或键盘← →控制移动（此为beta版本，暂不支持爪机~~）</div>
@@ -27,7 +24,7 @@
 				Life:&nbsp;<span id="life"></span>
 			</span>
 		</div>
-		<canvas id="canvas" width="640px" height="480px">
+		<canvas id="canvas">
             对不起！您的浏览器不支持Canvas，请使用chrome浏览器打开！
         </canvas>
 	</div>
@@ -48,5 +45,9 @@
 		</div>
 	</div>
 </body>
+
+<!-- <script src="./js/pop/brickConfig.js"></script> -->
+<!-- <script src="./js/pop/brick-pop.js"></script> -->
+<script src="./js/oop/brick-oop.js"></script>
 
 </html>
