@@ -58,6 +58,9 @@
 				uY = 0;
 			}
 
+			// if (this.ballPositionX > x - this.ballRadius && this.ballPositionX < x + width + this.ballRadius &&
+			// 	 this.ballPositionY > y - this.ballRadius && this.ballPositionY < y + height + this.ballRadius) {
+
 			// 发生碰撞
 			if (uX*uX + uY*uY < this.ballRadius*this.ballRadius) {
 				var a1 = y + height / 2 - this.ballPositionY;
@@ -124,11 +127,8 @@
 
 				// 根据角度来判断反弹方向
 				if (a1 / b1 > height / width) {
-					if (a1 / b1 != (height / 2 + this.ballRadius) / (width / 2 + (this.ballRadius - this.ballSpeedX)) && 
-						a1 / b1 != (height / 2 + this.ballRadius) / (this.ballRadius + this.ballSpeedX)) {
-						this.ballSpeedY = -this.ballSpeedY;
-						return true;
-					}
+					this.ballSpeedY = -this.ballSpeedY;
+					return true;
 				} else if (a1 / b1 < height / width) {
 					this.ballSpeedX = -this.ballSpeedX;
 					return true;
